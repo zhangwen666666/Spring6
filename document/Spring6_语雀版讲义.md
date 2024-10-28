@@ -107,32 +107,48 @@ public class UserServiceImpl implements UserService {
 
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=nTvJx&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
 ## 1.2 依赖倒置原则DIP
-依赖倒置原则(Dependence Inversion Principle)，简称DIP，主要倡导面向抽象编程，面向接口编程，不要面向具体编程，让**上层**不再依赖**下层**，下面改动了，上面的代码不会受到牵连。这样可以大大降低程序的耦合度，耦合度低了，扩展力就强了，同时代码复用性也会增强。（**软件七大开发原则都是在为解耦合服务**）
+* 依赖倒置原则(Dependence Inversion Principle)，简称DIP，**主要倡导面向抽象编程，面向接口编程，不要面向具体编程**，让**上层**不再依赖**下层**，下面改动了，上面的代码不会受到牵连。
+* 这样可以大大降低程序的耦合度，耦合度低了，扩展力就强了，同时代码复用性也会增强。（**软件七大开发原则都是在为解耦合服务**）
+* 什么叫违背依赖倒置原则？
+  * 上依赖下，就是违背。
+  * 只要下层一改动，上层就受到牵连。
+* 什么叫符合依赖倒置原则？ 上层不依赖下层，就是符合。
+
+![image-20241028141853829](C:\Users\PC\AppData\Roaming\Typora\typora-user-images\image-20241028141853829.png)
+
 你可能会说，上面的代码已经面向接口编程了呀：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1663663167652-73de3acd-61de-4f32-8a78-6c7698e910d3.png#averageHue=%232f2c2b&clientId=u1787aa54-d5e2-4&from=paste&height=508&id=u843f1bd1&originHeight=508&originWidth=882&originalType=binary&ratio=1&rotation=0&showTitle=false&size=51485&status=done&style=shadow&taskId=uf672c113-8a83-4112-aefa-a7b55259203&title=&width=882)
 确实已经面向接口编程了，但对象的创建是：new UserDaoImplForOracle()显然并没有完全面向接口编程，还是使用到了具体的接口实现类。什么叫做完全面向接口编程？什么叫做完全符合依赖倒置原则呢？请看以下代码：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1663663356201-4e57a395-503b-41ec-b98a-c3cd38f9279a.png#averageHue=%232d2b2b&clientId=u1787aa54-d5e2-4&from=paste&height=541&id=u169a370a&originHeight=541&originWidth=918&originalType=binary&ratio=1&rotation=0&showTitle=false&size=51020&status=done&style=shadow&taskId=ua2e6db2e-22a8-4502-bda6-f29f11da02b&title=&width=918)
-如果代码是这样编写的，才算是完全面向接口编程，才符合依赖倒置原则。那你可能会问，这样userDao是null，在执行的时候就会出现空指针异常呀。你说的有道理，确实是这样的，所以我们要解决这个问题。解决空指针异常的问题，其实就是解决两个核心的问题：
+如果代码是这样编写的，才算是完全面向接口编程，才符合依赖倒置原则。那你可能会问，这样userDao是null，在执行的时候就会出现空指针异常呀。你说的有道理，确实是这样的，所以我们要解决这个问题。解决空指针异常的问题，其实就是**解决两个核心的问题：**
 
 - 第一个问题：谁来负责对象的创建。【也就是说谁来：new UserDaoImplForOracle()/new UserDaoImplForMySQL()】
 - 第二个问题：谁来负责把创建的对象赋到这个属性上。【也就是说谁来把上面创建的对象赋给userDao属性】
 
 如果我们把以上两个核心问题解决了，就可以做到既符合OCP开闭原则，又符合依赖倒置原则。
 很荣幸的通知你：Spring框架可以做到。
-在Spring框架中，它可以帮助我们new对象，并且它还可以将new出来的对象赋到属性上。换句话说，Spring框架可以帮助我们创建对象，并且可以帮助我们维护对象和对象之间的关系。比如：
+在Spring框架中，它可以帮助我们new对象，并且它还可以将new出来的对象赋到属性上。换句话说，**Spring框架可以帮助我们创建对象，并且可以帮助我们维护对象和对象之间的关系**。比如：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1663664672011-b1f5c534-5c8b-412b-adb3-f7c60a3ab359.png#averageHue=%23f4f3f2&clientId=u1787aa54-d5e2-4&from=paste&height=271&id=u9c3095f5&originHeight=271&originWidth=901&originalType=binary&ratio=1&rotation=0&showTitle=false&size=22617&status=done&style=shadow&taskId=u2ef22be6-9e7a-40ca-97c7-ba5b3c39b0d&title=&width=901)
-Spring可以new出来UserDaoImplForMySQL对象，也可以new出来UserDaoImplForOracle对象，并且还可以让new出来的dao对象和service对象产生关系（产生关系其实本质上就是给属性赋值）。
+Spring可以new出来UserDaoImplForMySQL对象，也可以new出来UserDaoImplForOracle对象，并且还可以让new出来的dao对象和service对象产生关系（产生关系其实本质上就是给属性赋值)。
 很显然，这种方式是将对象的创建权/管理权交出去了，不再使用硬编码的方式了。同时也把对象关系的管理权交出去了，也不再使用硬编码的方式了。像这种把对象的创建权交出去，把对象关系的管理权交出去，被称为控制反转。
 
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=hmzZh&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
 ## 1.3 控制反转IoC
-控制反转（Inversion of Control，缩写为IoC），是面向对象编程中的一种设计思想，可以用来降低代码之间的耦合度，符合依赖倒置原则。
-控制反转的核心是：**将对象的创建权交出去，将对象和对象之间关系的管理权交出去，由第三方容器来负责创建与维护**。
-控制反转常见的实现方式：依赖注入（Dependency Injection，简称DI）
-通常，依赖注入的实现又包括两种方式：
+* 控制反转（Inversion of Control，缩写为IoC），是面向对象编程中的一种设计思想，可以用来降低代码之间的耦合度，符合依赖倒置原则。
+* 反转的是两件事：
+  * 不在程序中采用硬编码的方式来new对象了。(new对象的权利交出去了)
+  * 不在程序中采用硬编码的方式来维护对象的关系了。（对象之间关系的维护权也交出去了）
 
-- set方法注入
-- 构造方法注入
+* 控制反转的核心是：**将对象的创建权交出去，将对象和对象之间关系的管理权交出去，由第三方容器来负责创建与维护**。
+
+* 控制反转常见的实现方式：依赖注入（Dependency Injection，简称DI）
+
+* 通常，依赖注入的实现又包括两种方式：
+
+  - set方法注入
+
+  - 构造方法注入
+
 
 而Spring框架就是一个实现了IoC思想的框架。
 IoC可以认为是一种**全新的设计模式**，但是理论和时间成熟相对较晚，并没有包含在GoF中。（GoF指的是23种设计模式）
@@ -165,7 +181,7 @@ IoC可以认为是一种**全新的设计模式**，但是理论和时间成熟�
 
 3. Spring AOP模块
 
-Spring在它的AOP模块中提供了对面向切面编程的丰富支持，Spring AOP 模块为基于 Spring 的应用程序中的对象提供了事务管理服务。通过使用 Spring AOP，不用依赖组件，就可以将声明性事务管理集成到应用程序中，可以自定义拦截器、切点、日志等操作。
+Spring在它的AOP模块中提供了对面向切面编程的丰富支持，Spring AOP 模块为基于 Spring 的应用程序中的对象提供了事务管理服务。通过使用 Spring AOP，不用依赖组件，就可以将声明性事务管理集成到应用程序中，可以自定义拦截器、切点、日志等操作。(AOP是基于IoC的)
 
 4. Spring DAO模块
 
@@ -199,7 +215,7 @@ Web 上下文模块建立在应用程序上下文模块之上，为基于 Web �
 3. 面向切面
    1. Spring提供了面向切面编程的丰富支持，允许通过分离应用的业务逻辑与系统级服务（例如审计（auditing）和事务（transaction）管理）进行内聚性的开发。应用对象只实现它们应该做的——完成业务逻辑——仅此而已。它们并不负责（甚至是意识）其它的系统级关注点，例如日志或事务支持。
 4. 容器
-   1. Spring包含并管理应用对象的配置和生命周期，在这个意义上它是一种容器，你可以配置你的每个bean如何被创建——基于一个可配置原型（prototype），你的bean可以创建一个单独的实例或者每次需要时都生成一个新的实例——以及它们是如何相互关联的。然而，Spring不应该被混同于传统的重量级的EJB容器，它们经常是庞大与笨重的，难以使用。
+   1. **Spring包含并管理应用对象的配置和生命周期，在这个意义上它是一种容器**，你可以配置你的每个bean如何被创建——基于一个可配置原型（prototype），你的bean可以创建一个单独的实例或者每次需要时都生成一个新的实例——以及它们是如何相互关联的。然而，Spring不应该被混同于传统的重量级的EJB容器，它们经常是庞大与笨重的，难以使用。
 5. 框架
    1. Spring可以将简单的组件配置、组合成为复杂的应用。在Spring中，应用对象被声明式地组合，典型地是在一个XML文件里。Spring也提供了很多基础功能（事务管理、持久化框架集成等等），将应用逻辑的开发留给了你。
 
@@ -441,9 +457,16 @@ public class User {
 
 ```
 **第四步：编写spring的配置文件：beans.xml。该文件放在类的根路径下。**
+
+* 这个文件名可以随意
+* 这个文件最好是放在类路径中，方便后期的移植。
+* 放在resources目录下，就相当于放在了类的根路径下。
+* 配置bean，这样spring才可以帮助我们管理这个对象。
+
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1663816617460-ee35243c-fddc-4771-af28-0017f8af2ab5.png#averageHue=%2381a37e&clientId=u27d5a243-6a1b-4&from=paste&height=513&id=u818294ea&originHeight=513&originWidth=539&originalType=binary&ratio=1&rotation=0&showTitle=false&size=37339&status=done&style=shadow&taskId=uaa9e8c74-ca11-435a-91c2-d7d76be7340&title=&width=539)
 上图是使用IDEA工具自带的spring配置文件的模板进行创建。
 配置文件中进行bean的配置。
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -455,7 +478,7 @@ public class User {
 ```
 bean的id和class属性：
 
-- **id属性：代表对象的唯一标识。可以看做一个人的身份证号。**
+- **id属性：代表对象的唯一标识。可以看做一个人的身份证号。**（不能重复）
 - **class属性：用来指定要创建的java对象的类名，这个类名必须是全限定类名（带包名）。**
 
 **第五步：编写测试程序**

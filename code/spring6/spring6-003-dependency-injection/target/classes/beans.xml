@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="userDaoBean" class="com.zw.spring6.dao.UserDao"/>
+    <bean id="vipDaoBean" class="com.zw.spring6.dao.VipDao"/>
+    <bean id="csBean" class="com.zw.spring6.service.CustomerService">
+        <!--构造注入-->
+        <!--指定构造方法的第一个参数，下标是0-->
+        <constructor-arg index="0" ref="userDaoBean"/>
+        <!--指定构造方法的第二个参数，下标是1-->
+        <constructor-arg index="1" ref="vipDaoBean"/>
+    </bean>
+
+    <bean id="csBean2" class="com.zw.spring6.service.CustomerService">
+        <constructor-arg name="userDao" ref="userDaoBean"/>
+        <constructor-arg index="1" ref="vipDaoBean"/>
+    </bean>
+</beans>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--声明/定义外部bean-->
+    <bean id="orderDaoBean" class="com.zw.spring6.dao.OrderDao"/>
+    <bean id="orderServiceBean" class="com.zw.spring6.service.OrderService">
+        <!--使用ref来引用，这就是注入外部bean-->
+        <property name="orderDao" ref="orderDaoBean"/>
+    </bean>
+
+    <bean id="orderServiceBean2" class="com.zw.spring6.service.OrderService">
+        <property name="orderDao">
+            <bean class="com.zw.spring6.dao.OrderDao"/>
+        </property>
+    </bean>
+
+    <!--注入简单类型-->
+    <bean id="userBean" class="com.zw.spring6.bean.User">
+        <property name="username" value="张三"/>
+        <property name="age" value="20"/>
+        <property name="password" value="abcd"/>
+        <property name="date" ref="dateBean"/>
+    </bean>
+
+    <bean id="dateBean" class="java.util.Date">
+        <property name="year" value="0"/>
+        <property name="month" value="0"/>
+        <property name="date" value="0"/>
+        <property name="hours" value="0"/>
+        <property name="minutes" value="0"/>
+        <property name="seconds" value="0"/>
+    </bean>
+</beans>

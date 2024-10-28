@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="userDaoBean" class="com.zw.spring6.dao.UserDao"/>
+    <bean id="userServiceBean" class="com.zw.spring6.service.UserService">
+        <!--
+            1. 这里name的值是set方法的方法名去掉set并把第一个字母变小写
+            2. ref属性是set方法的参数，set方法需要一个UserDao类型的对象，
+               而上面配置了UserDao类型的id，把这个id写在这里就可以。
+               ref指定的是要注入的bean的id
+        -->
+        <property name="xxx" ref="userDaoBean"/>
+        <property name="vipDao" ref="vipDaoBean"/>
+    </bean>
+    <bean id="vipDaoBean" class="com.zw.spring6.dao.VipDao"/>
+</beans>
