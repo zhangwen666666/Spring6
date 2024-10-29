@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="userAction" class="com.zw.spring6.action.UserAction">
+        <property name="userService" ref="userService"/>
+    </bean>
+
+    <bean id="userService" class="com.zw.spring6.service.impl.UserServiceImpl">
+        <property name="userDao" ref="userDaoForOracle"/>
+    </bean>
+
+    <bean id="userDaoForMySQL" class="com.zw.spring6.dao.impl.UserDaoImplForMySQL"/>
+    <bean id="userDaoForOracle" class="com.zw.spring6.dao.impl.UserDaoImplForOracle"/>
+
+
+    <bean id="ua" class="com.zw.spring6.action.UserAction">
+        <constructor-arg index="0" ref="us"/>
+    </bean>
+    <bean id="us" class="com.zw.spring6.service.impl.UserServiceImpl">
+        <constructor-arg name="userDao" ref="userDaoForMySQL"/>
+    </bean>
+
+    <bean id="ua2" class="com.zw.spring6.action.UserAction">
+        <property name="userService">
+            <bean class="com.zw.spring6.service.impl.UserServiceImpl">
+                <property name="userDao">
+                    <bean class="com.zw.spring6.dao.impl.UserDaoImplForOracle"/>
+                </property>
+            </bean>
+        </property>
+    </bean>
+</beans>

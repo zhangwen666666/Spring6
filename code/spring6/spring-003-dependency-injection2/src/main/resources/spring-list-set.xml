@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="person" class="com.zw.spring6.bean.Person">
+        <property name="phones">
+            <list>
+                <value>13956474903</value>
+                <value>13956474903</value>
+                <value>85623804142</value>
+            </list>
+        </property>
+        <property name="clazzes">
+            <list>
+                <ref bean="clazz1"/>
+                <ref bean="clazz1"/>
+                <ref bean="clazz2"/>
+            </list>
+        </property>
+        <property name="hobbies">
+            <set>
+                <value>嫖娼</value>
+                <value>嫖娼</value>
+                <value>赌博</value>
+            </set>
+        </property>
+        <property name="addresses">
+            <set>
+                <ref bean="address1"/>
+                <ref bean="address3"/>
+                <ref bean="address2"/>
+            </set>
+        </property>
+    </bean>
+
+    <bean id="clazz1" class="com.zw.spring6.bean.Clazz">
+        <property name="cname" value="345班"/>
+    </bean>
+    <bean id="clazz2" class="com.zw.spring6.bean.Clazz">
+        <property name="cname" value="315班"/>
+    </bean>
+
+    <bean id="address1" class="com.zw.spring6.bean.Address">
+        <property name="city" value="天津"/>
+    </bean>
+    <bean id="address2" class="com.zw.spring6.bean.Address">
+        <property name="city" value="北京"/>
+    </bean>
+    <bean id="address3" class="com.zw.spring6.bean.Address">
+        <property name="city" value="天津"/>
+    </bean>
+</beans>

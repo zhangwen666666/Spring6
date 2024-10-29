@@ -483,24 +483,19 @@ bean的id和class属性：
 
 **第五步：编写测试程序**
 ```java
-package com.powernode.spring6.test;
+public void testFirstSpringCode(){
+    // 1. 获取Spring容器对象。
+    String path = "spring.xml";   // spring配置文件的路径
+    // ApplicationContext是一个接口，下面有很多实现类
+    // ClassPathXmlApplicationContext 专门从类路径中加载spring配置文件的一个Spring上下文对象
+    // 以下这行代码执行完之后，Spring容器中就已经有了userBean这个对象了
+    // 不是在调用getBean方法的时候创建对象，而是在解析XML文件的时候就会实例化对象
+    ApplicationContext applicationContext = new ClassPathXmlApplicationContext(path);
 
-import org.junit.Test;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-public class Spring6Test {
-
-    @Test
-    public void testFirst(){
-        // 初始化Spring容器上下文（解析beans.xml文件，创建所有的bean对象）
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("beans.xml");
-        // 根据id获取bean对象
-        Object userBean = applicationContext.getBean("userBean");
-        System.out.println(userBean);
-    }
+    // 2. 根据bean的id从Spring容器中获取这个对象
+    Object userBean = applicationContext.getBean("userBean");
+    System.out.println(userBean); //com.zw.spring6.bean.User@6cf0e0ba
 }
-
 ```
 **第七步：运行测试程序**
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1663818370960-22cf8670-7e79-48d2-b4fe-008ead1a6607.png#averageHue=%239aa28c&clientId=u27d5a243-6a1b-4&from=paste&height=216&id=u62327c92&originHeight=216&originWidth=779&originalType=binary&ratio=1&rotation=0&showTitle=false&size=24111&status=done&style=shadow&taskId=u8fad8f45-1956-4155-a47c-ee65fe7b73e&title=&width=779)
@@ -562,8 +557,9 @@ public class User {
 在User类中添加无参数构造方法，如上。
 运行测试程序：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1663829191565-09e55ce2-e426-4f34-a49d-1ecde4c66dd2.png#averageHue=%238e7a62&clientId=u27d5a243-6a1b-4&from=paste&height=148&id=u9b0114c5&originHeight=148&originWidth=586&originalType=binary&ratio=1&rotation=0&showTitle=false&size=18734&status=done&style=shadow&taskId=ud734e4b2-6179-489d-8e78-985da9b3d0e&title=&width=586)
-**通过测试得知：创建对象时确实调用了无参数构造方法。**
+**通过测试得知：是通过反射机制调用了无参数构造方法创建对象。**
 如果提供一个有参数构造方法，不提供无参数构造方法会怎样呢？
+
 ```java
 package com.powernode.spring6.bean;
 
@@ -595,7 +591,7 @@ Class clazz = Class.forName("com.powernode.spring6.bean.User");
 Object obj = clazz.newInstance();
 ```
 
-3. **把创建好的对象存储到一个什么样的数据结构当中了呢？**
+3. **把创建好的对象存储到一个什么样的数据结构当中了呢？**(在创建Spring容器时就已经将对象都创建好了)
 
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1663829973365-59ca2f4c-4d81-471f-8e4c-aa272f8c2b81.png#averageHue=%23e2e1e1&clientId=u27d5a243-6a1b-4&from=paste&height=520&id=ua2fc4b9b&originHeight=520&originWidth=455&originalType=binary&ratio=1&rotation=0&showTitle=false&size=16942&status=done&style=shadow&taskId=u0ad3d777-d9c5-40fa-8f8a-44dc30a731a&title=&width=455)
 
@@ -725,7 +721,9 @@ BeanFactory beanFactory = new ClassPathXmlApplicationContext("spring.xml");
 Object vipBean = beanFactory.getBean("vipBean");
 System.out.println(vipBean);
 ```
-BeanFactory是Spring容器的超级接口。ApplicationContext是BeanFactory的子接口。
+BeanFactory是Spring容器(IoC容器)的超级接口。ApplicationContext是BeanFactory的子接口。
+
+Spring底层的IoC是怎么实现的？XML解析 + 工厂模式 + 反射机制
 
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=EZt0U&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
 ## 3.5 Spring6启用Log4j2日志框架
@@ -884,6 +882,13 @@ public class UserService {
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
     }
+    
+    // set注入的话，必须提供一个set方法，Spring容器会调用这个set方法，来给UserDao属性赋值
+    // 可以自己写一个set方法，不符合javabean规范的
+    // 至少这个方法是以set单词开始的，前三个字母不能随便写，必须是"set"
+    // public void setXxx(UserDao xyz){
+    //     this.userDao = xyz;
+    // }
 
     public void save(){
         userDao.insert();
@@ -901,6 +906,13 @@ public class UserService {
 
     <bean id="userServiceBean" class="com.powernode.spring6.service.UserService">
         <property name="userDao" ref="userDaoBean"/>
+        <!--
+            1. 这里name的值是set方法的方法名去掉set并把第一个字母变小写
+            2. ref属性是set方法的参数，set方法需要一个UserDao类型的对象，
+               而上面配置了UserDao类型的id，把这个id写在这里就可以。
+               ref指定的是要注入的bean的id
+        -->
+        <!-- <property name="xxx" ref="userDaoBean"/> -->
     </bean>
 
 </beans>
@@ -1112,7 +1124,7 @@ spring配置文件：
 <bean id="orderDaoBean" class="com.powernode.spring6.dao.OrderDao"/>
 
 <bean id="orderServiceBean" class="com.powernode.spring6.service.OrderService">
-  <!--这里使用了构造方法上参数的名字-->
+  <!--这里使用了构造方法上参数（注意不是实例变量的名字，而是构造方法形式参数的名字）的名字-->
   <constructor-arg name="orderDao" ref="orderDaoBean"/>
   <constructor-arg name="userDao" ref="userDaoBean"/>
 </bean>
@@ -1342,12 +1354,12 @@ public class BeanUtils{
 - **基本数据类型对应的包装类**
 - **String或其他的CharSequence子类**
 - **Number子类**
-- **Date子类**
+- **Date子类**  java.util.Date  如果把Date当做简单类型，使用value赋值的话，这个日期格式必须是：value="Mon Oct 28 21:49:04 CST 2024" （直接在程序中输出日期，就是这个格式）。一般不把它看做简单类型。
 - **Enum子类**
 - **URI**
 - **URL**
-- **Temporal子类**
-- **Locale**
+- **Temporal子类**  java8提供的时间和时区类型
+- **Locale**  语言类
 - **Class**
 - **另外还包括以上简单值类型对应的数组类型。**
 
@@ -1940,7 +1952,7 @@ public void testCollection(){
 
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=oagnt&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
 ### 4.3.7 注入Set集合
-Set集合：无序不可重复
+Set集合：无序不可重复(底层会调用equals方法来判断是否相同)
 ```java
 package com.powernode.spring6.beans;
 
@@ -2208,7 +2220,8 @@ public void testNull(){
 ```
 执行结果：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665202218759-f35ed2da-e136-4ef0-92e5-8ae4ea029620.png#averageHue=%23887862&clientId=ufc7e21e2-2cbb-4&from=paste&height=116&id=ufa4ea0b9&originHeight=116&originWidth=454&originalType=binary&ratio=1&rotation=0&showTitle=false&size=9606&status=done&style=shadow&taskId=u9ad79395-c316-45f2-86cc-f03852ce598&title=&width=454)
-第二种方式：使用<null/>
+第二种方式：使用\<null/> 
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -2234,17 +2247,17 @@ XML中有5个特殊字符，分别是：<、>、'、"、&
 解决方案包括两种：
 
 - 第一种：特殊符号使用转义字符代替。
-- 第二种：将含有特殊符号的字符串放到：<![CDATA[]]> 当中。因为放在CDATA区中的数据不会被XML文件解析器解析。
+- 第二种：将含有特殊符号的字符串放到：\<![CDATA[]]> 当中。因为放在CDATA区中的数据不会被XML文件解析器解析。
 
 5个特殊字符对应的转义字符分别是：
 
 | **特殊字符** | **转义字符** |
 | --- | --- |
-| > | &gt; |
-| < | &lt; |
-| ' | &apos; |
-| " | &quot; |
-| & | &amp; |
+| > | \&gt; |
+| < | \&lt; |
+| ' | \&apos; |
+| " | \&quot; |
+| & | \&amp; |
 
 先使用转义字符来代替：
 ```java
@@ -2373,14 +2386,15 @@ public void testP(){
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665215638858-c5ae8aef-43ec-455d-90a3-ac3f97c92746.png#averageHue=%238d7c66&clientId=ufc7e21e2-2cbb-4&from=paste&height=118&id=u4aeacd2a&originHeight=118&originWidth=473&originalType=binary&ratio=1&rotation=0&showTitle=false&size=11448&status=done&style=shadow&taskId=u08f3e033-d49d-44e1-b717-e751097bdec&title=&width=473)
 把setter方法去掉：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665215713205-fcebda06-c4bb-486b-a2d7-6a238088625b.png#averageHue=%23352c2b&clientId=ufc7e21e2-2cbb-4&from=paste&height=220&id=uf42f4afe&originHeight=220&originWidth=1058&originalType=binary&ratio=1&rotation=0&showTitle=false&size=19291&status=done&style=shadow&taskId=u9c7f0649-555f-48d3-816e-a105727b293&title=&width=1058)
-所以p命名空间实际上是对set注入的简化。
+**所以p命名空间实际上是对set注入的简化。**
 
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=QEHc4&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
 ## 4.5 c命名空间注入
-c命名空间是简化构造方法注入的。
+**c命名空间是简化构造方法注入的。**
 使用c命名空间的两个前提条件：
 第一：需要在xml配置文件头部添加信息：xmlns:c="http://www.springframework.org/schema/c"
 第二：需要提供构造方法。
+
 ```java
 package com.powernode.spring6.beans;
 
@@ -2601,7 +2615,7 @@ Spring的配置文件这样配置：
 这个配置起到关键作用：
 
 - UserService Bean中需要添加autowire="byName"，表示通过名称进行装配。
-- UserService类中有一个UserDao属性，而UserDao属性的名字是aaa，**对应的set方法是setAaa()**，正好和UserDao Bean的id是一样的。这就是根据名称自动装配。
+- UserService类中有一个UserDao属性，而UserDao属性的名字是aaa，**对应的set方法是setAaa()**，正好和UserDao Bean的id是一样的。这就是根据名称自动装配。(**主要是看set方法对应的名字**)
 ```java
 @Test
 public void testAutowireByName(){
@@ -2748,7 +2762,7 @@ public void testAutowireByType(){
 ```
 执行测试程序：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665537341888-57af14a1-eeb4-4070-8713-b4368003251d.png#averageHue=%23faf7f6&clientId=ubfe41891-11ea-4&from=paste&height=254&id=uee149cb5&originHeight=254&originWidth=1583&originalType=binary&ratio=1&rotation=0&showTitle=false&size=57785&status=done&style=shadow&taskId=ud9ec74f0-3975-42b6-9535-c4c92b16535&title=&width=1583)
-测试结果说明了，当byType进行自动装配的时候，配置文件中某种类型的Bean必须是唯一的，不能出现多个。
+测试结果说明了，**当byType进行自动装配的时候，配置文件中某种类型的Bean必须是唯一的，不能出现多个。**
 
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=I89vS&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
 ## 4.8 Spring引入外部属性配置文件
@@ -2813,7 +2827,7 @@ url=jdbc:mysql://localhost:3306/spring
 username=root
 password=root123
 ```
-第三步：在spring配置文件中引入context命名空间。
+第三步：在spring配置文件中**引入context命名空间。**
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -2832,12 +2846,14 @@ password=root123
        xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
-
+	<!--location属性用来指定属性配置文件的路径，默认从类的根路径下开始加载-->
     <context:property-placeholder location="jdbc.properties"/>
     
     <bean id="dataSource" class="com.powernode.spring6.beans.MyDataSource">
         <property name="driver" value="${driver}"/>
         <property name="url" value="${url}"/>
+        <!-- 注意这里会默认取系统变量，因此输出时这里username='Administrator' -->
+        <!-- 因此属性配置文件中最好要有前缀，例如：jdbc.username=root -->
         <property name="username" value="${username}"/>
         <property name="password" value="${password}"/>
     </bean>
@@ -2922,11 +2938,11 @@ public void testScope(){
 ```
 执行测试程序：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665220250081-036fe814-8328-4b58-adf4-b3a37eb0cb4d.png#averageHue=%238e7f66&clientId=ufc7e21e2-2cbb-4&from=paste&height=114&id=ube1053bf&originHeight=114&originWidth=482&originalType=binary&ratio=1&rotation=0&showTitle=false&size=12907&status=done&style=shadow&taskId=u22871dcd-91c0-46b1-b30e-3d03327e8c6&title=&width=482)
-通过测试得知，默认情况下，Bean对象的创建是在初始化Spring上下文的时候就完成的。
+通过测试得知，默认情况下，**Bean对象的创建是在初始化Spring上下文的时候就完成的。**
 
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=fob5g&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
 ## 5.2 prototype
-如果想让Spring的Bean对象以多例的形式存在，可以在bean标签中指定scope属性的值为：**prototype**，这样Spring会在每一次执行getBean()方法的时候创建Bean对象，调用几次则创建几次。
+如果想让Spring的Bean对象以多例的形式存在，可以在bean标签中指定scope属性的值为：**prototype**，这样Spring会**在每一次执行getBean()方法的时候创建Bean对象**，调用几次则创建几次。
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -2962,6 +2978,7 @@ public void testScope(){
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665220698959-ff4ad909-670e-4745-960d-5c215e2af71e.png#averageHue=%238d7b65&clientId=ufc7e21e2-2cbb-4&from=paste&height=153&id=u098e4067&originHeight=153&originWidth=541&originalType=binary&ratio=1&rotation=0&showTitle=false&size=10979&status=done&style=shadow&taskId=u2c63f077-00be-49c9-a310-71c3fc2aa7b&title=&width=541)
 可以看到这一次在初始化Spring上下文的时候，并没有创建Bean对象。
 那你可能会问：scope如果没有配置，它的默认值是什么呢？默认值是singleton，单例的。
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -2986,7 +3003,7 @@ public void testScope(){
 ```
 执行结果：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665221074412-9b48c6e3-44f0-492c-a712-37b4baa24341.png#averageHue=%23937e66&clientId=ufc7e21e2-2cbb-4&from=paste&height=173&id=u956152e2&originHeight=173&originWidth=573&originalType=binary&ratio=1&rotation=0&showTitle=false&size=26951&status=done&style=shadow&taskId=uad922a99-49bc-4c58-a11e-9d2b89f6856&title=&width=573)
-通过测试得知，没有指定scope属性时，默认是singleton单例的。
+通过测试得知，**没有指定scope属性时，默认是singleton单例的。**
 
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=q2lBK&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
 ## 5.3 其它scope
@@ -3050,7 +3067,7 @@ public void testCustomScope(){
 
 # 六、GoF之工厂模式
 
-- 设计模式：一种可以被重复利用的解决方案。
+- 设计模式：**一种可以被重复利用的解决方案。**
 - GoF（Gang of Four），中文名——四人组。
 - 《Design Patterns: Elements of Reusable Object-Oriented Software》（即《设计模式》一书），1995年由 Erich Gamma、Richard Helm、Ralph Johnson 和 John Vlissides 合著。这几位作者常被称为"四人组（Gang of Four）"。
 - 该书中描述了23种设计模式。我们平常所说的设计模式就是指这23种设计模式。

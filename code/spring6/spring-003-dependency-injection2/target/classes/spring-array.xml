@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="teacher" class="com.zw.spring6.bean.Teacher">
+        <property name="hobbies">
+            <array>
+                <value>抽烟</value>
+                <value>喝酒</value>
+                <value>赌博</value>
+                <value>嫖娼</value>
+            </array>
+        </property>
+        <property name="clazzes">
+            <array>
+                <ref bean="clazz1"/>
+                <ref bean="clazz2"/>
+                <ref bean="clazz3"/>
+                <ref bean="clazz4"/>
+            </array>
+        </property>
+    </bean>
+
+    <bean id="clazz1" class="com.zw.spring6.bean.Clazz">
+        <property name="cname" value="高三一班"/>
+    </bean>
+    <bean id="clazz2" class="com.zw.spring6.bean.Clazz">
+        <property name="cname" value="高三二班"/>
+    </bean>
+    <bean id="clazz3" class="com.zw.spring6.bean.Clazz">
+        <property name="cname" value="高三三班"/>
+    </bean>
+    <bean id="clazz4" class="com.zw.spring6.bean.Clazz">
+        <property name="cname" value="高三四班"/>
+    </bean>
+</beans>

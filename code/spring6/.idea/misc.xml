@@ -7,6 +7,10 @@
         <option value="$PROJECT_DIR$/spring6-001-revelation/pom.xml" />
         <option value="$PROJECT_DIR$/spring6-002-first/pom.xml" />
         <option value="$PROJECT_DIR$/spring6-003-dependency-injection/pom.xml" />
+        <option value="$PROJECT_DIR$/spring-003-dependency-injection2/pom.xml" />
+        <option value="$PROJECT_DIR$/spring-004-scope/pom.xml" />
+        <option value="$PROJECT_DIR$/simple-factory/pom.xml" />
+        <option value="$PROJECT_DIR$/factory-method/pom.xml" />
       </list>
     </option>
   </component>

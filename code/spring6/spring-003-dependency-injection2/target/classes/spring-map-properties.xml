@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="order" class="com.zw.spring6.bean.Order">
+        <property name="orders">
+            <map>
+                <entry key="1" value="订单1"/>
+                <entry key="2" value="订单2"/>
+                <entry key="3" value="订单3"/>
+            </map>
+        </property>
+        <property name="properties">
+            <props>
+                <prop key="date">2024-10-11</prop>
+                <prop key="price">201.12</prop>
+            </props>
+        </property>
+    </bean>
+</beans>
