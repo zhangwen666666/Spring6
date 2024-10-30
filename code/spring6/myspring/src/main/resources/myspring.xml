@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans>
+    <bean id="user" class="com.zw.myspring.bean.User">
+        <property name="name" value="张三"/>
+        <property name="age" value="20"/>
+        <property name="num" value="1"/>
+        <property name="sex" value="false"/>
+    </bean>
+
+    <bean id="userService" class="com.zw.myspring.bean.UserService">
+        <property name="userDao" ref="userDao"/>
+    </bean>
+
+    <bean id="userDao" class="com.zw.myspring.bean.UserDao"/>
+</beans>

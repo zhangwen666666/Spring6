@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="sb" class="com.zw.spring6.bean.SpringBean" scope="prototype"/>
+
+    <bean id="starBean" class="com.zw.spring6.bean.StarFactory" factory-method="get"/>
+
+    <bean id="student" class="com.zw.spring6.bean.Student">
+        <property name="birth" value="Wed Oct 30 10:46:41 CST 2024"/>
+    </bean>
+
+    <bean id="date" class="com.zw.spring6.bean.DateFactoryBean">
+        <constructor-arg index="0" value="1980-10-01"/>
+    </bean>
+    <bean id="student1" class="com.zw.spring6.bean.Student">
+        <property name="birth" ref="date"/>
+    </bean>
+</beans>

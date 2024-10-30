@@ -3195,32 +3195,25 @@ package com.powernode.factory;
 
 /**
  * 工厂类角色
- * @author 动力节点
- * @version 1.0
- * @className WeaponFactory
- * @since 1.0
- **/
+ */
 public class WeaponFactory {
     /**
-     * 根据不同的武器类型生产武器
-     * @param weaponType 武器类型
-     * @return 武器对象
+     * 静态方法，要获取什么产品，就看你传什么参数，传TANK获取坦克，传FIGHTER获取战斗机...
+     * 简单工厂模式中有一个静态方法，所以被称为静态工厂方法模式
+     *
+     * @param weaponType
+     * @return
      */
-    public static Weapon get(String weaponType){
-        if (weaponType == null || weaponType.trim().length() == 0) {
-            return null;
-        }
-        Weapon weapon = null;
+    public static Weapon get(String weaponType) {
         if ("TANK".equals(weaponType)) {
-            weapon = new Tank();
-        } else if ("FIGHTER".equals(weaponType)) {
-            weapon = new Fighter();
+            return new Tank();
         } else if ("DAGGER".equals(weaponType)) {
-            weapon = new Dagger();
+            return new Dagger();
+        } else if ("FIGHTER".equals(weaponType)) {
+            return new Fighter();
         } else {
-            throw new RuntimeException("不支持该武器！");
+            throw new RuntimeException("不支持该武器生产");
         }
-        return weapon;
     }
 }
 
@@ -3237,6 +3230,11 @@ package com.powernode.factory;
  **/
 public class Client {
     public static void main(String[] args) {
+        // 对于客户端来说，坦克的生产细节，不需要关心，只需要像工厂索要产品即可。
+        // 简单工厂模式达到了职责分离，客户端不需要关心产品的生产细节。
+        // 客户端只负责消费，工厂类负责生产，一个负责生产，一个负责消费，
+        // 生产者和消费者分离，这就是简单工厂模式的作用。
+        // 如果关心生产细节，获取坦克应该这样做：Weapon tank = new Tank();
         Weapon weapon1 = WeaponFactory.get("TANK");
         weapon1.attack();
 
@@ -3253,24 +3251,24 @@ public class Client {
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665304945315-8bd0c855-6eff-44a8-8051-42a2c1edb712.png#averageHue=%23987f5e&clientId=u3fe1442a-4567-4&from=paste&height=173&id=u234858d4&originHeight=173&originWidth=384&originalType=binary&ratio=1&rotation=0&showTitle=false&size=12115&status=done&style=shadow&taskId=uf0965380-b300-4c9c-8700-d47c0722e98&title=&width=384)
 简单工厂模式的优点：
 
-- 客户端程序不需要关心对象的创建细节，需要哪个对象时，只需要向工厂索要即可，初步实现了责任的分离。客户端只负责“消费”，工厂负责“生产”。生产和消费分离。
+- 客户端程序不需要关心对象的创建细节，需要哪个对象时，只需要向工厂索要即可，**初步实现了责任的分离。**客户端只负责“消费”，工厂负责“生产”。生产和消费分离。
 
 简单工厂模式的缺点：
 
 - 缺点1：工厂类集中了所有产品的创造逻辑，形成一个无所不知的全能类，有人把它叫做上帝类。显然工厂类非常关键，不能出问题，一旦出问题，整个系统瘫痪。
-- 缺点2：不符合OCP开闭原则，在进行系统扩展时，需要修改工厂类。
+- 缺点2：**不符合OCP开闭原则**，在进行系统扩展时，需要修改工厂类。
 
 **Spring中的BeanFactory就使用了简单工厂模式。**
 
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=cZwbk&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
 ## 6.3 工厂方法模式
-工厂方法模式既保留了简单工厂模式的优点，同时又解决了简单工厂模式的缺点。
+工厂方法模式既保留了简单工厂模式的优点，同时又解决了简单工厂模式的缺点(**可以解决简单工厂模式中的OCP问题**，一个工厂对应生产一个产品，这样工程就不是全能类了，也可以符合OCP原则)。
 工厂方法模式的角色包括：
 
-- **抽象工厂角色**
-- **具体工厂角色**
-- 抽象产品角色
-- 具体产品角色
+- **抽象工厂角色**  WeaponFactory
+- **具体工厂角色**  DaggerFactory  GunFactory
+- 抽象产品角色  Weapon
+- 具体产品角色  Dagger Gun
 
 代码如下：
 ```java
@@ -3467,7 +3465,7 @@ public class Client {
 ```
 执行结果如下：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665362890109-5db8f42d-677b-450d-bc76-6842abe9640a.png#averageHue=%23997f5c&clientId=ue2397093-2e4b-4&from=paste&height=162&id=u7031050e&originHeight=162&originWidth=286&originalType=binary&ratio=1&rotation=0&showTitle=false&size=11869&status=done&style=shadow&taskId=u4680145a-70fd-4503-a3db-d4108e22bd5&title=&width=286)
-我们可以看到在进行功能扩展的时候，不需要修改之前的源代码，显然工厂方法模式符合OCP原则。
+我们可以看到在进行功能扩展的时候，不需要修改之前的源代码，**显然工厂方法模式符合OCP原则。**
 工厂方法模式的优点：
 
 - 一个调用者想创建一个对象，只要知道其名称就可以了。 
@@ -3744,6 +3742,9 @@ Spring为Bean提供了多种实例化方式，通常包括4种方式。（也就
 - 第四种：通过FactoryBean接口实例化
 ## 7.1 通过构造方法实例化
 我们之前一直使用的就是这种方式。默认情况下，会调用Bean的无参数构造方法。
+
+在spring配置文件中直接配置类全路径，Spring会自动调用该类的无参构造方法来创建对象
+
 ```java
 package com.powernode.spring6.bean;
 
@@ -3825,7 +3826,9 @@ package com.powernode.spring6.bean;
  * @since 1.0
  **/
 public class VipFactory {
+    // 简单工厂模式又称为静态工厂方法模式，有一个静态方法
     public static Vip get(){
+        // 这个Vip对象实际最终创建的时候还是我们负责new的。
         return new Vip();
     }
 }
@@ -3833,6 +3836,8 @@ public class VipFactory {
 ```
 第三步：在Spring配置文件中指定创建该Bean的方法（使用factory-method属性指定）
 ```xml
+<!--需要再Spring配置文件中告诉Spring框架，调用哪个类的哪个方法获取Bean-->
+<!--factory-method属性指定的是工厂类当中的静态方法，也就是告诉Spring框架，调用这个方法可以获取Bean-->
 <bean id="vipBean" class="com.powernode.spring6.bean.VipFactory" factory-method="get"/>
 ```
 第四步：编写测试程序
@@ -3875,7 +3880,9 @@ package com.powernode.spring6.bean;
  * @since 1.0
  **/
 public class OrderFactory {
+    // 工厂方法模式中的具体工厂中的方法是实例方法
     public Order get(){
+        // 实际上这个对象还是我们程序员自己new的
         return new Order();
     }
 }
@@ -3883,6 +3890,9 @@ public class OrderFactory {
 ```
 第三步：在Spring配置文件中指定factory-bean以及factory-method
 ```xml
+<!--通过factory-bean属性 + factory-method属性来共同完成-->
+<!--告诉Spring框架，调用哪个对象的哪个方法来获取Bean-->
+<!--factory-bean属性告诉Spring调用哪个对象，factory-method告诉Spring调用该对象的哪个方法-->
 <bean id="orderFactory" class="com.powernode.spring6.bean.OrderFactory"/>
 <bean id="orderBean" factory-bean="orderFactory" factory-method="get"/>
 ```
@@ -3901,9 +3911,10 @@ public void testSelfFactoryBean(){
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=pl4su&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
 ## 7.4 通过FactoryBean接口实例化
 以上的第三种方式中，factory-bean是我们自定义的，factory-method也是我们自己定义的。
-在Spring中，当你编写的类直接实现FactoryBean接口之后，factory-bean不需要指定了，factory-method也不需要指定了。
+**在Spring中，当你编写的类直接实现FactoryBean接口之后，factory-bean不需要指定了，factory-method也不需要指定了。**
 factory-bean会自动指向实现FactoryBean接口的类，factory-method会自动指向getObject()方法。
 第一步：定义一个Bean
+
 ```java
 package com.powernode.spring6.bean;
 
@@ -3933,6 +3944,7 @@ public class PersonFactoryBean implements FactoryBean<Person> {
 
     @Override
     public Person getObject() throws Exception {
+        // 最终这个bean的创建还是我们自己new的
         return new Person();
     }
 
@@ -3941,6 +3953,7 @@ public class PersonFactoryBean implements FactoryBean<Person> {
         return null;
     }
 
+    // isSingleton是默认方法，在接口中有默认实现
     @Override
     public boolean isSingleton() {
         // true表示单例
@@ -4106,9 +4119,9 @@ Bean生命周期可以粗略的划分为五大步：
 
 - 第一步：实例化Bean
 - 第二步：Bean属性赋值
-- 第三步：初始化Bean
+- 第三步：初始化Bean （会调用Bean的init方法，这个init方法需要自己写，自己配）
 - 第四步：使用Bean
-- 第五步：销毁Bean
+- 第五步：销毁Bean （会调用Bean的destroy方法，这个方法也需要自己写，自己配）
 
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665388735200-444405f6-283d-4b3a-8cdf-8c3e01743618.png#averageHue=%23f6f6f6&clientId=ue2397093-2e4b-4&from=paste&height=142&id=u7c6b9a1a&originHeight=142&originWidth=851&originalType=binary&ratio=1&rotation=0&showTitle=false&size=11129&status=done&style=shadow&taskId=u288cbb6f-b738-43ff-ac53-6eb841c29fc&title=&width=851)
 编写测试程序：
@@ -4134,10 +4147,12 @@ public class User {
         System.out.println("2.Bean属性赋值");
     }
 
+    // 方法名随意
     public void initBean(){
         System.out.println("3.初始化Bean");
     }
 
+    // 这个方法名也随意
     public void destroyBean(){
         System.out.println("5.销毁Bean");
     }
@@ -4213,6 +4228,9 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * @since 1.0
  **/
 public class LogBeanPostProcessor implements BeanPostProcessor {
+    // 方法有两个参数：
+    // 第一个参数：刚创建的bean对象
+    // 第二个参数：bean对象的名字 (spring.xml中bean标签的id就是bean对象的名字)
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         System.out.println("Bean后处理器的before方法执行，即将开始初始化");
@@ -4596,6 +4614,15 @@ public class CircularDependencyTest {
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665453201014-160bb88e-08d4-4d37-a1d9-44d4911a32df.png#averageHue=%238b7760&clientId=ue12e8566-378b-4&from=paste&height=149&id=u5b4b34dd&originHeight=149&originWidth=516&originalType=binary&ratio=1&rotation=0&showTitle=false&size=16412&status=done&style=shadow&taskId=uf18aa1ed-430e-4ab5-9523-c0b0e54ba30&title=&width=516)
 **通过测试得知：在singleton + set注入的情况下，循环依赖是没有问题的。Spring可以解决这个问题。**
 
+为什么不会出现问题？
+
+* 在这种模式下Spring对Bean的管理主要分为清晰的两个阶段：
+  * 在Spring容器加载的时候，实例化Bean，只要其中任意一个Bean实例化之后，马上进行“**曝光**”[不等属性赋值就曝光]。
+  * Bean曝光之后，在进行属性的赋值。
+* 核心解决方案是：实例化对象和为对象的属性赋值分为两个阶段来完成的。
+
+注意：只有在scope是Singleton的情况下，Bean才会采取提前“曝光”的措施。因为可以保证对象只有一个。
+
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=smNUU&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
 ## 9.3 prototype下的set注入产生的循环依赖
 我们再来测试一下：prototype+set注入的方式下，循环依赖会不会出现问题？
@@ -4617,13 +4644,9 @@ public class CircularDependencyTest {
 ```
 执行测试程序：发生了异常，异常信息如下：
 Caused by: org.springframework.beans.factory.**BeanCurrentlyInCreationException**: Error creating bean with name 'husbandBean': Requested bean is currently in creation: Is there an unresolvable circular reference?
-	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:265)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)
-	at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveReference(BeanDefinitionValueResolver.java:325)
-	... 44 more
 翻译为：创建名为“husbandBean”的bean时出错：请求的bean当前正在创建中：是否存在无法解析的循环引用？
 通过测试得知，当循环依赖的**所有Bean**的scope="prototype"的时候，产生的循环依赖，Spring是无法解决的，会出现**BeanCurrentlyInCreationException**异常。
-大家可以测试一下，以上两个Bean，如果其中一个是singleton，另一个是prototype，是没有问题的。
+大家可以测试一下，以上两个Bean，**如果其中一个是singleton，另一个是prototype，是没有问题的。**
 为什么两个Bean都是prototype时会出错呢？
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665454469042-69668f45-5d71-494f-8537-18142d354abd.png#averageHue=%232f2c2b&clientId=ue12e8566-378b-4&from=paste&height=480&id=u51bd1a99&originHeight=480&originWidth=1140&originalType=binary&ratio=1&rotation=0&showTitle=false&size=92057&status=done&style=shadow&taskId=u3b8b4f66-7f8c-4735-ac25-5aba78db2d5&title=&width=1140)
 
@@ -4725,13 +4748,7 @@ public void testSingletonAndConstructor(){
 ```
 执行结果：发生了异常，信息如下：
 Caused by: org.springframework.beans.factory.**BeanCurrentlyInCreationException**: Error creating bean with name 'hBean': Requested bean is currently in creation: Is there an unresolvable circular reference?
-	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.beforeSingletonCreation(DefaultSingletonBeanRegistry.java:355)
-	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:227)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:324)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:199)
-	at org.springframework.beans.factory.support.BeanDefinitionValueResolver.resolveReference(BeanDefinitionValueResolver.java:325)
-	... 56 more
-和上一个测试结果相同，都是提示产生了循环依赖，并且Spring是无法解决这种循环依赖的。
+和上一个测试结果相同，都是提示产生了循环依赖，并且**Spring是无法解决这种循环依赖的。**
 为什么呢？
 **主要原因是因为通过构造方法注入导致的：因为构造方法注入会导致实例化对象的过程和对象属性赋值的过程没有分离开，必须在一起完成导致的。**
 
@@ -4739,16 +4756,16 @@ Caused by: org.springframework.beans.factory.**BeanCurrentlyInCreationException*
 ## 9.5 Spring解决循环依赖的机理
 Spring为什么可以解决set + singleton模式下循环依赖？
 根本的原因在于：这种方式可以做到将“实例化Bean”和“给Bean属性赋值”这两个动作分开去完成。
-实例化Bean的时候：调用无参数构造方法来完成。**此时可以先不给属性赋值，可以提前将该Bean对象“曝光”给外界。**
+实例化Bean的时候：调用无参数构造方法来完成。<span style="color:red;">**此时可以先不给属性赋值，可以提前将该Bean对象“曝光”给外界。**</span>
 给Bean属性赋值的时候：调用setter方法来完成。
-两个步骤是完全可以分离开去完成的，并且这两步不要求在同一个时间点上完成。
+<span style="color:red;">两个步骤是完全可以分离开去完成的，并且这两步不要求在同一个时间点上完成。</span>
 也就是说，Bean都是单例的，我们可以先把所有的单例Bean实例化出来，放到一个集合当中（我们可以称之为缓存），所有的单例Bean全部实例化完成之后，以后我们再慢慢的调用setter方法给属性赋值。这样就解决了循环依赖的问题。
 那么在Spring框架底层源码级别上是如何实现的呢？请看：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665456331018-18c45ae3-fa4c-4cd8-aabf-d9bace567693.png#averageHue=%23fcf9f8&clientId=ue12e8566-378b-4&from=paste&height=666&id=u56928305&originHeight=666&originWidth=1433&originalType=binary&ratio=1&rotation=0&showTitle=false&size=98860&status=done&style=shadow&taskId=u7ea2c6fd-a463-45ab-b788-d07a902827c&title=&width=1433)
 在以上类中包含三个重要的属性：
-_**Cache of singleton objects: bean name to bean instance. **_**单例对象的缓存：key存储bean名称，value存储Bean对象【一级缓存】**
-_**Cache of early singleton objects: bean name to bean instance. **_**早期单例对象的缓存：key存储bean名称，value存储早期的Bean对象【二级缓存】**
-_**Cache of singleton factories: bean name to ObjectFactory. **_**单例工厂缓存：key存储bean名称，value存储该Bean对应的ObjectFactory对象【三级缓存】**
+_**Cache of singleton objects: bean name to bean instance. **_**单例对象的缓存：key存储bean名称，value存储Bean对象【一级缓存】**。这个单例Bean对象是一个完整的Bean对象，Bean对象中的属性都已经赋值了。
+_**Cache of early singleton objects: bean name to bean instance. **_**早期单例对象的缓存：key存储bean名称，value存储早期的Bean对象【二级缓存】**。这个缓存中的单例Bean对象的属性没有赋值，只是一个早期的实例对象。
+_**Cache of singleton factories: bean name to ObjectFactory. **_**单例工厂缓存：key存储bean名称，value存储该Bean对应的ObjectFactory对象【三级缓存】**这个单例工厂对象中存储了大量的“工厂对象”，每一个单例Bean对象都会对应一个单例工厂对象。这个集合中存储的是，创建该单例对象时对应的那个单例工厂对象。
 这三个缓存其实本质上是三个Map集合。
 我们再来看，在该类中有这样一个方法addSingletonFactory()，这个方法的作用是：将创建Bean对象的ObjectFactory对象提前曝光。
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665460724682-2222366d-cc07-43db-a8d0-fb27712b20a4.png#averageHue=%23fdfaf9&clientId=ue12e8566-378b-4&from=paste&height=463&id=u9c53eab2&originHeight=463&originWidth=1104&originalType=binary&ratio=1&rotation=0&showTitle=false&size=74936&status=done&style=shadow&taskId=ua1bb4340-c729-4663-9e06-baabf662874&title=&width=1104)
@@ -4758,6 +4775,7 @@ _**Cache of singleton factories: bean name to ObjectFactory. **_**单例工厂�
 **总结：**
 **Spring只能解决setter方法注入的单例bean之间的循环依赖。ClassA依赖ClassB，ClassB又依赖ClassA，形成依赖闭环。Spring在创建ClassA对象后，不需要等给属性赋值，直接将其曝光到bean缓存当中。在解析ClassA的属性时，又发现依赖于ClassB，再次去获取ClassB，当解析ClassB的属性时，又发现需要ClassA的属性，但此时的ClassA已经被提前曝光加入了正在创建的bean的缓存中，则无需创建新的的ClassA的实例，直接从缓存中获取即可。从而解决循环依赖问题。**
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=GmDZk&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
+
 # 十、回顾反射机制
 ## 10.1 分析方法四要素
 我们先来看一下，不使用反射机制调用一个方法需要几个要素的参与。
