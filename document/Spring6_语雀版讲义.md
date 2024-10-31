@@ -5844,17 +5844,20 @@ public class Test {
 
 源码如下：
 ```java
-package com.powernode.annotation;
+package org.springframework.stereotype;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(value = {ElementType.TYPE})
-@Retention(value = RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Indexed
 public @interface Component {
-    String value();
+    String value() default "";
 }
 
 ```
@@ -5924,7 +5927,7 @@ public @interface Repository {
 }
 
 ```
-通过源码可以看到，@Controller、@Service、@Repository这三个注解都是@Component注解的别名。
+通过源码可以看到，<span style=color:red;>**@Controller、@Service、@Repository这三个注解都是@Component注解的别名。**</span>
 也就是说：这四个注解的功能都一样。用哪个都可以。
 只是为了增强程序的可读性，建议：
 
@@ -5966,6 +5969,8 @@ public @interface Repository {
        xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    
+    <!--给spring框架指定要扫描哪些包中的类-->
     <context:component-scan base-package="com.powernode.spring6.bean"/>
 </beans>
 ```
@@ -6078,13 +6083,15 @@ public class BankDao {
 执行结果：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665546198246-f9d6adc1-ecc8-4e8c-babf-49f2ed7b87cd.png#averageHue=%23f2f0ee&clientId=u999e1312-db7a-4&from=paste&height=109&id=u34fc7e45&originHeight=109&originWidth=507&originalType=binary&ratio=1&rotation=0&showTitle=false&size=13171&status=done&style=shadow&taskId=u211caeee-724d-410c-9440-f1136f928e4&title=&width=507)
 剩下的两个注解大家可以测试一下。
-**如果是多个包怎么办？有两种解决方案：**
+
+<span style="color:red;">**如果是多个包怎么办？有两种解决方案：**</span>
 
 - **第一种：在配置文件中指定多个包，用逗号隔开。**
-- **第二种：指定多个包的共同父包。**
+- **第二种：指定多个包的共同父包。**（会牺牲一定的效率）
 
 先来测试一下逗号（英文）的方式：
 创建一个新的包：bean2，定义一个Bean类。
+
 ```java
 package com.powernode.spring6.bean2;
 
@@ -6425,6 +6432,8 @@ import org.springframework.stereotype.Service;
 @Service // 纳入bean管理
 public class UserService {
 
+    // @Autowired注解使用的时候，不需要指定任何属性，直接使用这个注解即可
+    // 这个注解的作用是根据类型（byType）进行自动装配。
     @Autowired // 在属性上注入
     private UserDao userDao;
     
@@ -6658,12 +6667,12 @@ public class UserService {
 
 - @Resource注解是JDK扩展包中的，也就是说属于JDK的一部分。所以该注解是标准注解，更加具有通用性。(JSR-250标准中制定的注解类型。JSR是Java规范提案。)
 - @Autowired注解是Spring框架自己的。
-- **@Resource注解默认根据名称装配byName，未指定name时，使用属性名作为name。通过name找不到的话会自动启动通过类型byType装配。**
-- **@Autowired注解默认根据类型装配byType，如果想根据名称装配，需要配合@Qualifier注解一起用。**
+- <span style="color:red;">**@Resource注解默认根据名称装配byName，未指定name时，使用属性名作为name。通过name找不到的话会自动启动通过类型byType装配。**</span>
+- **<span style="color:red;">@Autowired注解默认根据类型装配byType，如果想根据名称装配，需要配合@Qualifier注解一起用。</span>**
 - @Resource注解用在属性上、setter方法上。
 - @Autowired注解用在属性上、setter方法上、构造方法上、构造方法参数上。
 
-@Resource注解属于JDK扩展包，所以不在JDK当中，需要额外引入以下依赖：【**如果是JDK8的话不需要额外引入依赖。高于JDK11或低于JDK8需要引入以下依赖。**】
+@Resource注解属于JDK扩展包，所以不在JDK当中，需要额外引入以下依赖：<span style="color:red;">【**如果是JDK8的话不需要额外引入依赖。高于JDK11或低于JDK8需要引入以下依赖。**】</span>
 ```xml
 <dependency>
   <groupId>jakarta.annotation</groupId>
