@@ -7392,11 +7392,11 @@ public void testCallback(){
 
 # 十四、GoF之代理模式
 ## 14.1 对代理模式的理解
-**生活场景1**：牛村的牛二看上了隔壁村小花，牛二不好意思直接找小花，于是牛二找来了媒婆王妈妈。这里面就有一个非常典型的代理模式。牛二不能和小花直接对接，只能找一个中间人。其中王妈妈是代理类，牛二是目标类。王妈妈代替牛二和小花先见个面。（现实生活中的婚介所）【在程序中，对象A和对象B无法直接交互时。】
-**生活场景2**：你刚到北京，要租房子，可以自己找，也可以找链家帮你找。其中链家是代理类，你是目标类。你们两个都有共同的行为：找房子。不过链家除了满足你找房子，另外会收取一些费用的。(现实生活中的房产中介)【在程序中，功能需要增强时。】
-**西游记场景**：八戒和高小姐的故事。八戒要强抢民女高翠兰。悟空得知此事之后怎么做的？悟空幻化成高小姐的模样。代替高小姐与八戒会面。其中八戒是客户端程序。悟空是代理类。高小姐是目标类。那天夜里，在八戒眼里，眼前的就是高小姐，对于八戒来说，他是不知道眼前的高小姐是悟空幻化的，在他内心里这就是高小姐。所以悟空代替高小姐和八戒亲了嘴儿。这是非常典型的代理模式实现的保护机制。**代理模式中有一个非常重要的特点：对于客户端程序来说，使用代理对象时就像在使用目标对象一样。【在程序中，目标需要被保护时】**
+**生活场景1**：牛村的牛二看上了隔壁村小花，牛二不好意思直接找小花，于是牛二找来了媒婆王妈妈。这里面就有一个非常典型的代理模式。牛二不能和小花直接对接，只能找一个中间人。其中王妈妈是代理类，牛二是目标类。王妈妈代替牛二和小花先见个面。（现实生活中的婚介所）【<span style="color:red">在程序中，对象A和对象B无法直接交互时。</span>】
+**生活场景2**：你刚到北京，要租房子，可以自己找，也可以找链家帮你找。其中链家是代理类，你是目标类。你们两个都有共同的行为：找房子。不过链家除了满足你找房子，另外会收取一些费用的。(现实生活中的房产中介)【<span style="color:red">在程序中，功能需要增强时。</span>】
+**西游记场景**：八戒和高小姐的故事。八戒要强抢民女高翠兰。悟空得知此事之后怎么做的？悟空幻化成高小姐的模样。代替高小姐与八戒会面。其中八戒是客户端程序。悟空是代理类。高小姐是目标类。那天夜里，在八戒眼里，眼前的就是高小姐，对于八戒来说，他是不知道眼前的高小姐是悟空幻化的，在他内心里这就是高小姐。所以悟空代替高小姐和八戒亲了嘴儿。这是非常典型的代理模式实现的保护机制。**代理模式中有一个非常重要的特点：对于客户端程序来说，使用代理对象时就像在使用目标对象一样。【<span style="color:red">在程序中，目标需要被保护时</span>】**
 **业务场景**：系统中有A、B、C三个模块，使用这些模块的前提是需要用户登录，也就是说在A模块中要编写判断登录的代码，B模块中也要编写，C模块中还要编写，这些判断登录的代码反复出现，显然代码没有得到复用，可以为A、B、C三个模块提供一个代理，在代理当中写一次登录判断即可。代理的逻辑是：请求来了之后，判断用户是否登录了，如果已经登录了，则执行对应的目标，如果没有登录则跳转到登录页面。【在程序中，目标不但受到保护，并且代码也得到了复用。】
-代理模式是GoF23种设计模式之一。属于结构型设计模式。
+<span style="color:red">代理模式是GoF23种设计模式之一。属于结构型设计模式。</span>
 代理模式的作用是：为其他对象提供一种代理以控制对这个对象的访问。在某些情况下，一个客户不想或者不能直接引用一个对象，此时可以通过一个称之为“代理”的第三者来实现间接引用。代理对象可以在客户端和目标对象之间起到中介的作用，并且可以通过代理对象去掉客户不应该看到的内容和服务或者添加客户需要的额外服务。 通过引入一个新的对象来实现对真实对象的操作或者将新的对象作为真实对象的一个替身，这种实现机制即为代理模式，通过引入代理对象来间接访问一个对象，这就是代理模式的模式动机。
 代理模式中的角色：
 
@@ -7595,10 +7595,14 @@ package com.powernode.mall.service;
  * @className OrderServiceProxy
  * @since 1.0
  **/
+// 代理对象(代理对象和目标对象要具有相同的行为，就要实现同一个或同一些接口)
+// 客户端在使用代理对象的时候就像在使用目标对象一样。
 public class OrderServiceProxy implements OrderService{ // 代理对象
 
-    // 目标对象
-    private OrderService orderService;
+    // 将目标对象做为代理对象的一个属性，这种关系叫做关联关系，比继承关系耦合度低
+    // 代理对象中含有目标对象的引用，关联关系
+    // 注意：这里要写一个公共接口类型，因为公共接口耦合度低
+    private OrderService orderService;  // 目标对象
 
     // 通过构造方法将目标对象传递给代理对象
     public OrderServiceProxy(OrderService orderService) {
@@ -7607,6 +7611,7 @@ public class OrderServiceProxy implements OrderService{ // 代理对象
 
     @Override
     public void generate() {
+        // 增强
         long begin = System.currentTimeMillis();
         // 执行目标对象的目标方法
         orderService.generate();
@@ -7616,6 +7621,7 @@ public class OrderServiceProxy implements OrderService{ // 代理对象
 
     @Override
     public void detail() {
+         // 增强
         long begin = System.currentTimeMillis();
         // 执行目标对象的目标方法
         orderService.detail();
@@ -7625,6 +7631,7 @@ public class OrderServiceProxy implements OrderService{ // 代理对象
 
     @Override
     public void modify() {
+         // 增强
         long begin = System.currentTimeMillis();
         // 执行目标对象的目标方法
         orderService.modify();
@@ -7666,7 +7673,7 @@ public class Client {
 运行结果：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665711099963-e31eb7f2-4355-43c6-985a-2ed9223a7aee.png#averageHue=%23fbfaf9&clientId=ue2440d3d-c252-4&from=paste&height=250&id=uca6f5849&originHeight=250&originWidth=357&originalType=binary&ratio=1&rotation=0&showTitle=false&size=18052&status=done&style=shadow&taskId=u328feba1-2083-461e-9990-566503accf0&title=&width=357)
 以上就是代理模式中的静态代理，其中OrderService接口是代理类和目标类的共同接口。OrderServiceImpl是目标类。OrderServiceProxy是代理类。
-大家思考一下：如果系统中业务接口很多，一个接口对应一个代理类，显然也是不合理的，会导致类爆炸。怎么解决这个问题？动态代理可以解决。因为在动态代理中可以在内存中动态的为我们生成代理类的字节码。代理类不需要我们写了。类爆炸解决了，而且代码只需要写一次，代码也会得到复用。
+大家思考一下：如果系统中业务接口很多，<span style="color:red;">**一个接口对应一个代理类，显然也是不合理的，会导致类爆炸**。</span>怎么解决这个问题？动态代理可以解决。因为在动态代理中可以在内存中动态的为我们生成代理类的字节码。代理类不需要我们写了。类爆炸解决了，而且代码只需要写一次，代码也会得到复用。<span style="color:red;">**动态代理还是代理模式，只不过添加了字节码生成技术，可以在内存中为我们动态的生成一个class字节码文件，这个字节码就是代理类。**</span>
 
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=zkGtL&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
 ## 14.3 动态代理
@@ -7772,8 +7779,9 @@ public class Client {
         // 第一步：创建目标对象
         OrderService target = new OrderServiceImpl();
         // 第二步：创建代理对象
-        OrderService orderServiceProxy = Proxy.newProxyInstance(target.getClass().getClassLoader(), target.getClass().getInterfaces(), 调用处理器对象);
+        Object proxyObj = Proxy.newProxyInstance(类加载器, 代理类要实现的接口, 调用处理器对象);
         // 第三步：调用代理对象的代理方法
+        OrderService orderServiceProxy = (OrderService) proxyObj;
         orderServiceProxy.detail();
         orderServiceProxy.modify();
         orderServiceProxy.generate();
@@ -7781,18 +7789,18 @@ public class Client {
 }
 ```
 以上第二步创建代理对象是需要大家理解的：
-OrderService orderServiceProxy = Proxy.newProxyInstance(target.getClass().getClassLoader(), target.getClass().getInterfaces(), 调用处理器对象);
-这行代码做了两件事：
+Proxy.newProxyInstance(类加载器, 代理类要实现的接口, 调用处理器对象);
+<span style="color:red">**这行代码做了两件事：**</span>
 
-- 第一件事：在内存中生成了代理类的字节码
-- 第二件事：创建代理对象
+- 第一件事：在内存中动态生成了代理类的字节码
+- 第二件事：创建代理对象，通过内存中生成的代理类的代码，实例化了对象
 
 Proxy类全名：java.lang.reflect.Proxy。这是JDK提供的一个类（所以称为JDK动态代理）。主要是通过这个类在内存中生成代理类的字节码。
-其中newProxyInstance()方法有三个参数：
+<span style="color:red">**其中newProxyInstance()方法有三个参数：**</span>
 
-- 第一个参数：类加载器。在内存中生成了字节码，要想执行这个字节码，也是需要先把这个字节码加载到内存当中的。所以要指定使用哪个类加载器加载。
-- 第二个参数：接口类型。代理类和目标类实现相同的接口，所以要通过这个参数告诉JDK动态代理生成的类要实现哪些接口。
-- 第三个参数：调用处理器。这是一个JDK动态代理规定的接口，接口全名：java.lang.reflect.InvocationHandler。显然这是一个回调接口，也就是说调用这个接口中方法的程序已经写好了，就差这个接口的实现类了。
+- 第一个参数：类加载器。在内存中生成了字节码，要想执行这个字节码，也是需要先把这个字节码加载到Java虚拟机当中的。所以要指定使用哪个类加载器加载。<span style="color:red">JDK要求，目标类的类加载器必须和代理类的类加载器使用同一个。即target.getClass().getClassLoader()。</span>
+- 第二个参数：接口类型。代理类和目标类实现相同的接口，所以要<span style="color:red">通过这个参数告诉JDK动态代理生成的类要实现哪些接口。即target.getClass().getInterfaces()。</span>
+- 第三个参数：调用处理器。这是一个JDK动态代理规定的接口，接口全名：java.lang.reflect.InvocationHandler。显然这是一个回调接口，也就是说调用这个接口中方法的程序已经写好了，就差这个接口的实现类了。<span style="color:red">在调用处理器接口中编写的就是：增强的代码。因为具体要增强什么代码，JDK动态代理技术他是不知道的。</span>
 
 所以接下来我们要写一下java.lang.reflect.InvocationHandler接口的实现类，并且实现接口中的方法，代码如下：
 ```java
@@ -7802,23 +7810,39 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 /**
+ * 专门负责计时的一个调用处理器对象
+ * 在这个调用处理器当中编写计时相关的增强代码
+ * 这个调用处理器只需要写一个就行了
+ *
  * @author 动力节点
  * @version 1.0
  * @className TimerInvocationHandler
  * @since 1.0
  **/
 public class TimerInvocationHandler implements InvocationHandler {
+    /*
+    	1. 为什么强行要求你必须实现InvocationHandler接口？
+    		因为一个类实现接口就必须实现接口中的方法。
+    		以下这个方法必须是invoke()，因为JDK在底层调用invoke()方法的程序已经提前写好了。
+    		注意：invoke方法不是我们程序员负责调用的，是JDK负责调用的。
+    	2. invoke()方法什么时候被调用呢？
+    		当代理对象调用代理方法的时候，注册在InvocationHandler调用处理器当中的invoke()方法被JDK调用
+    		
+    **/
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        // 这个接口的目的就是为了让你有地方写增强代码
         return null;
     }
 }
 ```
-InvocationHandler接口中有一个方法invoke，这个invoke方法上有三个参数：
+<span style="color:red">InvocationHandler接口中有一个方法invoke，这个invoke方法上有三个参数。invoke方法是JDK负责调用的，所以JDK在调用这个方法的时候就会自动给我们传过来这三个参数，我们可以在invoke方法中直接使用这三个参数：</span>
 
 - 第一个参数：Object proxy。代理对象。设计这个参数只是为了后期的方便，如果想在invoke方法中使用代理对象的话，尽管通过这个参数来使用。
-- 第二个参数：Method method。目标方法。
-- 第三个参数：Object[] args。目标方法调用时要传的参数。
+- 第二个参数：Method method。目标对象上的目标方法。要执行的目标方法就是它。invoke方法执行过程中，使用method来调用目标对象的目标方法。
+- 第三个参数：Object[] args。目标方法调用时要传的参数。目标方法的实参。
+
+<span style="color:red;">**注意：如果代理对象调用代理方法之后，需要返回结果的话，invoke方法必须将目标对象的目标方法执行结果继续返回。**</span>
 
 我们将来肯定是要调用“目标方法”的，但要调用目标方法的话，需要“目标对象”的存在，“目标对象”从哪儿来呢？我们可以给TimerInvocationHandler提供一个构造方法，可以通过这个构造方法传过来“目标对象”，代码如下：
 ```java
@@ -8006,6 +8030,7 @@ package com.powernode.mall.service;
  * @className UserService
  * @since 1.0
  **/
+// 目标类
 public class UserService {
 
     public void login(){
@@ -8033,10 +8058,11 @@ import net.sf.cglib.proxy.Enhancer;
 public class Client {
     public static void main(String[] args) {
         // 创建字节码增强器
+        // 这个对象是CGLIB库当中的核心对象，就是依靠它来生成代理类。
         Enhancer enhancer = new Enhancer();
         // 告诉cglib要继承哪个类
         enhancer.setSuperclass(UserService.class);
-        // 设置回调接口
+        // 设置回调接口 （等同于JDK动态代理中的调用处理器。InvocationHandler）
         enhancer.setCallback(方法拦截器对象);
         // 生成源码，编译class，加载到JVM，并创建代理对象
         UserService userServiceProxy = (UserService)enhancer.create();
@@ -8145,7 +8171,15 @@ public class Client {
 
 执行结果：
 ![image.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665719690752-0b38d1ec-f4fd-4a8e-878c-3496da353fe2.png#averageHue=%23f9f8f7&clientId=u71f508e1-87c2-4&from=paste&height=201&id=u60ff1d9f&originHeight=201&originWidth=328&originalType=binary&ratio=1&rotation=0&showTitle=false&size=15058&status=done&style=shadow&taskId=uf9053cca-6107-4765-9b3d-94828282e01&title=&width=328)
+
+<span style="color:red;">**底层本质：生成了一个类继承目标类**</span>
+
+```java
+Class UserService$$EnhancerByCGLIB$$3a794ab3 extends UserService{}
+```
+
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=uXyZw&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
+
 # 十五、面向切面编程AOP
 IoC使软件组件松耦合。AOP让你能够捕捉系统中经常使用的功能，把它转化成组件。
 AOP（Aspect Oriented Programming）：面向切面编程，面向方面编程。（AOP是一种编程技术）
