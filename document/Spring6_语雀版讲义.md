@@ -8183,7 +8183,7 @@ Class UserService$$EnhancerByCGLIB$$3a794ab3 extends UserService{}
 # 十五、面向切面编程AOP
 IoC使软件组件松耦合。AOP让你能够捕捉系统中经常使用的功能，把它转化成组件。
 AOP（Aspect Oriented Programming）：面向切面编程，面向方面编程。（AOP是一种编程技术）
-AOP是对OOP的补充延伸。
+AOP是对OOP（面向对象编程）的补充延伸。
 AOP底层使用的就是动态代理来实现的。
 Spring的AOP使用的动态代理是：JDK动态代理 + CGLIB动态代理技术。Spring在这两种动态代理中灵活切换，如果是代理接口，会默认使用JDK动态代理，如果要代理某个类，这个类没有实现接口，就会切换使用CGLIB。当然，你也可以强制通过一些配置让Spring只使用CGLIB。
 
@@ -8229,32 +8229,64 @@ public class UserService{
     }
     // 核心业务方法
     public void service(){
-        do1();
-        do2();
-        do3();
-        do5();
+		try{
+            // Joinpoint连接点
+			do1(); // Pointcut切点
+            // Joinpoint连接点
+            do2(); // Pointcut切点
+            // Joinpoint连接点
+            do3(); // Pointcut切点
+            // Joinpoint连接点
+            do5(); // Pointcut切点
+            // Joinpoint连接点
+        }catch(Exception e){
+            // Joinpoint连接点
+        }finally{
+            // Joinpoint连接点
+        }
     }
 }
 ```
 
 - **连接点 Joinpoint**
    - 在程序的整个执行流程中，**可以织入**切面的位置。方法的执行前后，异常抛出之后等位置。
+   
+   - 连接点描述的是位置。
+   
+     * ProceedingJoinPoint是连接点，专门使用在环绕通知中
+   
+     * 其余的通知中也可以使用连接点，类型是JoinPoint。用这个JoinPoint joinPoint干啥？
+   
+       ```java
+       Signature signature = joinPoint.getSignature(); // 获取目标方法的签名
+       joinPoint.getSignature().getDeclaringTypeName() // 获取类名
+       ```
+   
+       拿到这个签名，就可以获取目标方法的方法名、修饰符等。
+   
 - **切点 Pointcut**
    - 在程序执行流程中，**真正织入**切面的方法。（一个切点对应多个连接点）
+   - 切点本质上就是方法
+   
 - **通知 Advice**
    - 通知又叫增强，就是具体你要织入的代码。
    - 通知包括：
-      - 前置通知
-      - 后置通知
-      - 环绕通知
-      - 异常通知
-      - 最终通知
+      - 前置通知  放在切点前的
+      - 后置通知  放在切点后的
+      - 环绕通知  切点前后都有的
+      - 异常通知  放在catch语句块中的
+      - 最终通知  放在finally语句块中的
+   - 例如：具体的事务代码，日志代码，事务代码，安全代码。具体的代码是通知。
+   
 - **切面 Aspect**
    - **切点 + 通知就是切面。**
+   
 - 织入 Weaving
    - 把通知应用到目标对象上的过程。
+   
 - 代理对象 Proxy
    - 一个目标对象被织入通知后产生的新对象。
+   
 - 目标对象 Target
    - 被织入通知的对象。
 
@@ -8265,6 +8297,7 @@ public class UserService{
 ## 15.3 切点表达式
 切点表达式用来定义通知（Advice）往哪些方法上切入。
 切入点表达式语法格式：
+
 ```
 execution([访问控制权限修饰符] 返回值类型 [全限定类名]方法名(形式参数列表) [异常])
 ```
@@ -8277,7 +8310,7 @@ execution([访问控制权限修饰符] 返回值类型 [全限定类名]方法�
 返回值类型：
 
 - 必填项。
-- * 表示返回值类型任意。
+- \* 表示返回值类型任意。
 
 全限定类名：
 
@@ -8288,8 +8321,8 @@ execution([访问控制权限修饰符] 返回值类型 [全限定类名]方法�
 方法名：
 
 - 必填项。
-- *表示所有方法。
-- set*表示所有的set方法。
+- \* 表示所有方法。
+- set* 表示所有的set方法。
 
 形式参数列表：
 
@@ -8388,6 +8421,7 @@ import org.aspectj.lang.annotation.Aspect;
 // 切面类
 @Aspect
 public class MyAspect {
+    // 切面 = 通知 + 切点
 }
 ```
 第三步：目标类和切面类都纳入spring bean管理
@@ -8418,6 +8452,7 @@ import org.aspectj.lang.annotation.Aspect;
 @Aspect
 @Component
 public class MyAspect {
+    // 切面 = 通知 + 切点
     // 这就是需要增强的代码（通知）
     public void advice(){
         System.out.println("我是一个通知");
@@ -8446,8 +8481,9 @@ public class MyAspect {
     }
 }
 ```
-**注解@Before表示前置通知。**
+<span style="color:red;">**注解@Before表示前置通知。@Before(切点表达式)**</span>
 第七步：在spring配置文件中启用自动代理
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -8464,9 +8500,10 @@ public class MyAspect {
 </beans>
 ```
 <aop:aspectj-autoproxy  proxy-target-class="true"/> 开启自动代理之后，凡事带有@Aspect注解的bean都会生成代理对象。
-proxy-target-class="true" 表示采用cglib动态代理。
+proxy-target-class="true" 表示强制采用cglib动态代理。
 proxy-target-class="false" 表示采用jdk动态代理。默认值是false。即使写成false，当没有接口的时候，也会自动选择cglib生成代理类。
 测试程序：
+
 ```java
 package com.powernode.spring6.test;
 
@@ -8514,7 +8551,7 @@ public class MyAspect {
     @Around("execution(* com.powernode.spring6.service.OrderService.*(..))")
     public void aroundAdvice(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
         System.out.println("环绕通知开始");
-        // 执行目标方法。
+        // 执行目标方法。ProceedingJoinPoint是连接点，专门使用在环绕通知中
         proceedingJoinPoint.proceed();
         System.out.println("环绕通知结束");
     }
@@ -8576,7 +8613,11 @@ public class AOPTest {
 执行结果：
 ![5F9597E7-7930-4384-95C2-CF64C9DDA9F3.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665892617792-22cc74a2-6876-4cd1-bb17-87d3b5211cae.png#averageHue=%23333333&clientId=u34f8a484-08bc-4&from=ui&height=228&id=u64d09acb&originHeight=378&originWidth=656&originalType=binary&ratio=1&rotation=0&showTitle=false&size=73879&status=done&style=shadow&taskId=u5653f4f8-bba0-49ae-8455-6e4175b3973&title=&width=395)
 通过上面的执行结果就可以判断他们的执行顺序了，这里不再赘述。
+
+<span style="color:red;">**环绕通知是最大的通知，在前置通知之前，后置通知之后；最终通知在后置通知之后**</span>
+
 结果中没有异常通知，这是因为目标程序执行过程中没有发生异常。我们尝试让目标方法发生异常：
+
 ```java
 package com.powernode.spring6.service;
 
@@ -8774,6 +8815,8 @@ public class MyAspect {
         System.out.println("环绕通知结束");
     }
 
+    // 如果引入别的类中的通用切点，需要加全限定类名
+    // 例如@Before("com.zw.spring6.service.LogAspect.pointcut()")
     @Before("pointcut()")
     public void beforeAdvice(){
         System.out.println("前置通知");
@@ -8812,9 +8855,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
-@Configuration
-@ComponentScan("com.powernode.spring6.service")
-@EnableAspectJAutoProxy(proxyTargetClass = true)
+@Configuration // 代替spring.xml
+@ComponentScan("com.powernode.spring6.service") // 开启组件自动扫描
+@EnableAspectJAutoProxy(proxyTargetClass = true) // 开启aspectj的自动代理机制
 public class Spring6Configuration {
 }
 ```
@@ -8913,7 +8956,7 @@ public class AOPTest3 {
 ![5F9597E7-7930-4384-95C2-CF64C9DDA9F3.png](https://cdn.nlark.com/yuque/0/2022/png/21376908/1665902800121-49540c48-d6c2-4909-874d-e1a485e67ea5.png#averageHue=%23333333&clientId=u34f8a484-08bc-4&from=ui&height=135&id=uc93a20cf&originHeight=306&originWidth=794&originalType=binary&ratio=1&rotation=0&showTitle=false&size=73341&status=done&style=shadow&taskId=u9a1ba488-afcf-493f-8b12-389153b34bf&title=&width=351)
 
 ![标头.jpg](https://cdn.nlark.com/yuque/0/2023/jpeg/21376908/1692002570088-3338946f-42b3-4174-8910-7e749c31e950.jpeg#averageHue=%23f9f8f8&clientId=uc5a67c34-8a0d-4&from=paste&height=78&id=Eiujl&originHeight=78&originWidth=1400&originalType=binary&ratio=1&rotation=0&showTitle=false&size=23158&status=done&style=shadow&taskId=u98709943-fd0b-4e51-821c-a3fc0aef219&title=&width=1400)
-## 15.5 AOP的实际案例：事务处理
+## 15.5 AOP的实际案例：编程式事务处理
 项目中的事务控制是在所难免的。在一个业务流程当中，可能需要多条DML语句共同完成，为了保证数据的安全，这多条DML语句要么同时成功，要么同时失败。这就需要添加事务控制的代码。例如以下伪代码：
 ```java
 class 业务类1{
@@ -9180,17 +9223,17 @@ import org.springframework.stereotype.Component;
 // 商品业务类
 @Component
 public class ProductService {
-    public void getProduct(){
-        System.out.println("获取商品信息");
+    public void getUser(){
+        System.out.println("获取用户信息");
     }
-    public void saveProduct(){
-        System.out.println("保存商品");
+    public void saveUser(){
+        System.out.println("保存用户");
     }
-    public void deleteProduct(){
-        System.out.println("删除商品");
+    public void deleteUser(){
+        System.out.println("删除用户");
     }
-    public void modifyProduct(){
-        System.out.println("修改商品");
+    public void modifyUser(){
+        System.out.println("修改用户");
     }
 }
 
@@ -9210,7 +9253,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Aspect
 public class SecurityAspect {
-
+	
+    // 定义切点，方便下面使用
     @Pointcut("execution(* com.powernode.spring6.biz..save*(..))")
     public void savePointcut(){}
 
@@ -9828,6 +9872,13 @@ public void save(Account act) {
 }
 ```
 **一定要集成Log4j2日志框架，在日志信息中可以看到更加详细的信息。**
+
+如果@Transactional(propagation = Propagation.REQUIRED)，加入到同一个事务中，就会同时成功或失败。
+
+如果@Transactional(propagation = Propagation.REQUIRES_NEW)，那么save方法保存act-004失败了，并且在调用该方法的方法中捕捉了，那么调用该方法的方法还可以继续执行，由于不是在同一个事务中，外层的事务可以成功执行。如果调用该方法的方法中没有捕捉到这个异常，那么调用该方法的方法就不能继续往下执行了，即使不在一个事务中，外层事务也会回滚。
+
+
+
 #### 事务隔离级别
 事务隔离级别类似于教室A和教室B之间的那道墙，隔离级别越高表示墙体越厚。隔音效果越好。
 数据库中读取数据存在的三大问题：（三大读问题）
@@ -9966,7 +10017,8 @@ public void testIsolation2(){
 **表示超过10秒如果该事务中所有的DML语句还没有执行完毕的话，最终结果会选择回滚。**
 默认值-1，表示没有时间限制。
 **这里有个坑，事务的超时时间指的是哪段时间？**
-**在当前事务当中，最后一条DML语句执行之前的时间。如果最后一条DML语句后面很有很多业务逻辑，这些业务代码执行的时间不被计入超时时间。**
+<span style="color:red;">**在当前事务当中，最后一条DML语句执行之前的时间。如果最后一条DML语句后面很有很多业务逻辑，这些业务代码执行的时间不被计入超时时间。**</span>
+
 ```java
 @Transactional(timeout = 10) // 设置事务超时时间为10秒。
 public void save(Account act) {
@@ -10039,12 +10091,15 @@ import javax.sql.DataSource;
  * @className Spring6Config
  * @since 1.0
  **/
-@Configuration
-@ComponentScan("com.powernode.bank")
-@EnableTransactionManagement
+@Configuration // 代替spring.xml文件，在这个类中完成配置
+@ComponentScan("com.powernode.bank") // 开启组件扫描
+@EnableTransactionManagement // 开启事务注解，告诉Spring框架采用注解的方式去控制事务
 public class Spring6Config {
 
-    @Bean
+    // Spring框架，看到这个@Bean注解后，会调用这个被标注的方法，这个方法的返回值是一个Java对象，
+    // 这个Java对象会自动纳入IoC容器管理，返回的对象就是Spring容器当中的一个Bean了。
+    // 并且这个bean的名字是dataSource
+    @Bean("dataSource")
     public DataSource getDataSource(){
         DruidDataSource dataSource = new DruidDataSource();
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
@@ -10055,7 +10110,7 @@ public class Spring6Config {
     }
 
     @Bean(name = "jdbcTemplate")
-    public JdbcTemplate getJdbcTemplate(DataSource dataSource){
+    public JdbcTemplate getJdbcTemplate(DataSource dataSource){// Spring在调用这个方法的时候会自动给我们传递过来一个dataSource对象(根据类型自动传递)
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         jdbcTemplate.setDataSource(dataSource);
         return jdbcTemplate;
@@ -10142,6 +10197,7 @@ Spring配置文件如下：
     <!--配置通知-->
     <tx:advice id="txAdvice" transaction-manager="txManager">
         <tx:attributes>
+            <!--配置通知相关的属性(所有的事务属性都可以额在以下标签中配置)-->
             <tx:method name="save*" propagation="REQUIRED" rollback-for="java.lang.Throwable"/>
             <tx:method name="del*" propagation="REQUIRED" rollback-for="java.lang.Throwable"/>
             <tx:method name="update*" propagation="REQUIRED" rollback-for="java.lang.Throwable"/>
@@ -10160,6 +10216,7 @@ Spring配置文件如下：
 ```
 将AccountServiceImpl类上的@Transactional注解删除。
 编写测试程序：
+
 ```java
 @Test
 public void testTransferXml(){
@@ -10305,14 +10362,18 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @since 1.0
  **/
 @RunWith(SpringJUnit4ClassRunner.class)
+// 使用这个注解，下面所有的单元测试方法中都不需要加载Spring.xml了。
 @ContextConfiguration("classpath:spring.xml")
 public class SpringJUnit4Test {
 
+    // 自动注入，下面User user = applicationContext.getBean("user", User.class);就不用写了
     @Autowired
     private User user;
 
     @Test
     public void testUser(){
+        // ApplicationContext applicationContext = new ClassPathXmlApplicationContext("spring.xml");
+        // User user = applicationContext.getBean("user", User.class);
         System.out.println(user.getName());
     }
 }
