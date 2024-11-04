@@ -13,6 +13,7 @@
         <module name="dynamic-proxy-jdk" />
         <module name="spring6-009-jdbc" />
         <module name="review-annotation" />
+        <module name="spring6-017-car" />
         <module name="factory-method" />
         <module name="spring6-003-dependency-injection" />
         <module name="spring6-006-bean-lifecycle" />
